@@ -15,47 +15,51 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.20.0/axios.min.js"></script>
 </head>
 <div class="container">
+      <h1 class="p-3">Deportes</h1>
+      
+      <!-- Agregar deporte -->
+      <form action="/" class="border rounded p-4 mb-5">
+        <h4 class="mb-5">Agregar deporte</h4>
+        <div class="form-group row">
+          <label class="col-sm-2 col-form-label">Disciplina</label>
+  
+          <div class="col-sm-10">
+            <input id="nombre" type="text" class="form-control" name="nombre"/>
+          </div>
+        </div>
+        <div class="form-group row">
+          <label class="col-sm-2 col-form-label">Mensualidad por persona</label>
+  
+          <div class="col-sm-10">
+            <input id="precio" type="number" class="form-control" precio="precio" />
+          </div>
+        </div>
+  
+        <button class="btn btn-info" onclick="agregar()">Agregar</button>
+      </form>
 
-  <h1>Deportes</h1>
-  <div action="/agregar" class="border rounded p-4">
-    <div class="form-group row">
-      <label class="col-sm-2 col-form-label">Nombre</label>
+      <!-- Editar/eliminar deporte -->
 
-      <div class="col-sm-10">
-        <input id="nombre" type="text" class="form-control" name="nombre" />
-      </div>
-    </div>
-    <div class="form-group row">
-      <label class="col-sm-2 col-form-label">Precio</label>
-
-      <div class="col-sm-10">
-        <input id="precio" type="text" class="form-control" precio="precio" />
-      </div>
-    </div>
-
-    <button class="btn btn-info" onclick="agregar()">Agregar</button>
-  </div>
+      <h5 class="text-center my-4">Deportes registrados</h5>
+      <table class="table w-100 m-auto border">
+        <thead>
+          <tr>
+            <th scope="col">#</th>
+            <th scope="col">Deporte</th>
+            <th scope="col">Valor mensualidad</th>
+            <th scope="col"></th>
+          </tr>
+        </thead>
+        <tbody id="cuerpo"></tbody>
+      </table>
 </div>
-
-<h5 class="text-center my-4">Tabla de deportes registrados</h5>
-<table class="table w-25 m-auto border">
-  <thead>
-    <tr>
-      <th scope="col">#</th>
-      <th scope="col">Nombre</th>
-      <th scope="col">Precio</th>
-      <th scope="col"></th>
-    </tr>
-  </thead>
-  <tbody id="cuerpo"></tbody>
-</table>
 
 <script>
   $(document).ready(function () {
     getData()
   })
 
-  function getData() {
+  function getData(){
     $('#cuerpo').html('')
     axios.get('/deportes').then((data) => {
       let deportes = data.data.deportes
@@ -64,41 +68,46 @@
         <tr>
           <th scope="row">${i + 1}</th>
           <td>${d.nombre}</td>
-          <td>${d.precio}</td>
+          <td>$ ${d.precio}</td>
           <td>
-            <button class="btn btn-warning" onclick='preEdit("${d.nombre}","${d.precio
-          }")' data-toggle="modal" data-target="#exampleModal">Editar</button>
-            <button class="btn btn-danger" onclick='eliminar("${d.nombre}")'>Eliminar</button>
+              <button class="btn btn-warning" onclick='preEdit("${d.nombre}","${d.precio}")' data-toggle="modal" data-target="#modalEdit">Editar</button>
+          </td>
+          <td>
+              <button class="btn btn-danger" onclick='preDelete("${d.nombre}")' data-toggle="modal" data-target="#modalDelete">Eliminar</button>
           </td>
         </tr>
         `)
       })
     })
-  }
+  };
+  
+    function agregar() {
+      let nombre = $('#nombre').val()
+      let precio = $('#precio').val()
+      axios.get(`/agregar?nombre=${nombre}&precio=${precio}`).then((data) => {
+        alert(data.data)
+        getData()
+      })
+      $('#modalEdit').modal('hide')
+    }
 
   function preEdit(nombre, precio) {
     $('#nombreModal').val(nombre)
     $('#precioModal').val(precio)
   }
 
-  function agregar() {
-    let nombre = $('#nombre').val()
-    let precio = $('#precio').val()
-    axios.get(`/agregar?nombre=${nombre}&precio=${precio}`).then((data) => {
-      alert(data.data)
-      getData()
-    })
-    $('#exampleModal').modal('hide')
-  }
-
-  function edit() {
+  function editar() {
     let nombre = $('#nombreModal').val()
     let precio = $('#precioModal').val()
     axios.get(`/editar?nombre=${nombre}&precio=${precio}`).then((data) => {
       alert(data.data)
       getData()
     })
-    $('#exampleModal').modal('hide')
+    $('#modalEdit').modal('hide')
+  }
+
+  function preDelete(nombre){
+    $('#nombreModalDelete').val(nombre).addClass("text-center")
   }
 
   function eliminar(nombre) {
@@ -106,32 +115,47 @@
       alert(data.data)
       getData()
     })
-    $('#exampleModal').modal('hide')
+    $('#modalDelete').modal('hide')
   }
 </script>
 
-<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+<div class="modal fade" id="modalEdit" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
   aria-hidden="true">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="rounded p-4">
+        <form action="/">
+          <div class="form-group row">
+            <label class="col-sm-2 col-form-label">Nombre</label>
+            <div class="col-sm-10">
+              <input id="nombreModal" disabled type="text" class="form-control" name="nombre" />
+            </div>
+          </div>
+          <div class="form-group row">
+            <label class="col-sm-2 col-form-label">Precio</label>
+            <div class="col-sm-10">
+              <input id="precioModal" type="text" class="form-control" precio="precio" />
+            </div>
+          </div>
+          <button class="btn btn-success justify-content-end" onclick="editar()">Confirmar</button>
         </form>
-        <div class="form-group row">
-          <label class="col-sm-2 col-form-label">Nombre</label>
+      </div>
+    </div>
+  </div>
+</div>
 
-          <div class="col-sm-10">
-            <input id="nombreModal" disabled type="text" class="form-control" name="nombre" />
+<div class="modal fade" id="modalDelete" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+  aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="rounded p-4">
+        <form action="/">
+          <h6>¿Estás seguro que quieres eliminar este deporte?</h6>
+          <div>
+            <input id="nombreModalDelete" disabled type="text" class="form-control my-3" name="nombre" />
           </div>
-        </div>
-        <div class="form-group row">
-          <label class="col-sm-2 col-form-label">Precio</label>
-
-          <div class="col-sm-10">
-            <input id="precioModal" type="text" class="form-control" precio="precio" />
-          </div>
-        </div>
-
-        <button class="btn btn-warning" onclick="edit()">Editar</button>
+          <button class="btn btn-danger justify-content-end" onclick="eliminar()">Confirmar</button>
+        </form>
       </div>
     </div>
   </div>

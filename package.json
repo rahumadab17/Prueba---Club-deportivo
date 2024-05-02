@@ -1,6 +1,10 @@
 {
   "dependencies": {
+    "chalk": "^4.1.2",
     "express": "^4.19.2",
     "nodemon": "^3.1.0"
+  },
+  "scripts": {
+    "dev": "nodemon ./index.js"
   }
 }
